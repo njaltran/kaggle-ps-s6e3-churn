@@ -1,0 +1,19 @@
+{
+  "run_id": "s006",
+  "model": "lgbm",
+  "feature_version": "v2",
+  "oof_auc": 0.915938,
+  "fold_aucs": [
+    0.915503,
+    0.916806,
+    0.91597,
+    0.917074,
+    0.914395
+  ],
+  "fold_std": 0.000961,
+  "n_splits": 5,
+  "seed": 42,
+  "n_features": 37,
+  "train_rows": 594194,
+  "elapsed_seconds": 160.4
+}

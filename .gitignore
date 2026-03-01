@@ -1,0 +1,46 @@
+# ── Competition data — never commit (Kaggle rules) ────
+data/
+
+# ── Python ────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# ── Jupyter ───────────────────────────────────────────
+.ipynb_checkpoints/
+
+# ── OS ────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Credentials (SPECIFIC — do NOT use *.json) ────────
+kaggle.json
+.kaggle/
+*credentials*.json
+
+# ── Large ML artifacts ────────────────────────────────
+*.pkl
+*.joblib
+*.bin
+*.pt
+*.h5
+
+# ── CatBoost training artifacts (auto-generated) ─────
+catboost_info/
+
+# ── Logs ─────────────────────────────────────────────
+*.log
+
+# ── Per-run prediction CSVs (large, regeneratable) ───
+# Exclude large raw prediction files; keep metrics.json + notes.md + feature_importance.csv
+submissions/*/submission.csv
+submissions/*/oof_predictions.csv
+
+# ── Pipeline helper (local runner, no need to commit) ─
+run_pipeline.sh

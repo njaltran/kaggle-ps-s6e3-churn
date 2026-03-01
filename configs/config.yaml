@@ -1,0 +1,189 @@
+# ============================================================
+# Kaggle Playground Series S6E3 — Master Config
+# competition: Telco Customer Churn (binary classification)
+# metric: AUC (ROC) — submit probabilities [0,1]
+# updated: 2026-03-01 — expanded to 10-submission plan
+# ============================================================
+
+competition:
+  slug: playground-series-s6e3
+  metric: roc_auc
+  task: binary_classification
+  target_col: Churn          # Yes=1, No=0
+  id_col: id
+  positive_label: "Yes"      # encode Yes→1
+  max_daily_submissions: 10
+
+paths:
+  train: data/train.csv
+  test: data/test.csv
+  sample_submission: data/sample_submission.csv
+  output_base: submissions/
+
+# Feature lists (from EDA 2026-03-01)
+features:
+  numeric:
+    - SeniorCitizen
+    - tenure
+    - MonthlyCharges
+    - TotalCharges
+
+  categorical:
+    - gender
+    - Partner
+    - Dependents
+    - PhoneService
+    - MultipleLines
+    - InternetService
+    - OnlineSecurity
+    - OnlineBackup
+    - DeviceProtection
+    - TechSupport
+    - StreamingTV
+    - StreamingMovies
+    - Contract
+    - PaperlessBilling
+    - PaymentMethod
+
+  drop:
+    - id
+
+cv:
+  strategy: stratified_kfold
+  n_splits: 5
+  shuffle: true
+  seed: 42
+
+cv_deep:                    # used in s008 (10-fold)
+  strategy: stratified_kfold
+  n_splits: 10
+  shuffle: true
+  seed: 42
+
+# ── s001/s002: LightGBM Baseline ─────────────────────────
+lgbm_baseline:
+  seed: 42
+  n_estimators: 3000
+  learning_rate: 0.05
+  num_leaves: 127
+  max_depth: -1
+  min_child_samples: 20
+  feature_fraction: 0.8
+  bagging_fraction: 0.8
+  bagging_freq: 1
+  reg_alpha: 0.1
+  reg_lambda: 0.1
+  verbose: -1
+  n_jobs: -1
+  device: cpu
+  objective: binary
+  metric: auc
+
+# ── s003: CatBoost baseline ──────────────────────────────
+catboost_baseline:
+  seed: 42
+  iterations: 3000
+  learning_rate: 0.05
+  depth: 7
+  l2_leaf_reg: 3.0
+  random_strength: 1.0
+  bagging_temperature: 0.5
+  eval_metric: AUC
+  verbose: 0
+  task_type: CPU
+  early_stopping_rounds: 100
+
+# ── s007: CatBoost manually tuned (diversity variant) ────
+# Shallower + more regularized → different error pattern for ensemble
+catboost_tuned:
+  seed: 42
+  iterations: 3000
+  learning_rate: 0.04
+  depth: 6
+  l2_leaf_reg: 6.0
+  random_strength: 0.5
+  bagging_temperature: 0.8
+  eval_metric: AUC
+  verbose: 0
+  task_type: CPU
+  early_stopping_rounds: 100
+
+# ── s005: XGBoost Baseline ────────────────────────────────
+xgboost_baseline:
+  seed: 42
+  n_estimators: 3000
+  learning_rate: 0.05
+  max_depth: 7
+  min_child_weight: 5
+  subsample: 0.8
+  colsample_bytree: 0.8
+  reg_alpha: 0.1
+  reg_lambda: 1.0
+  eval_metric: auc
+  objective: binary:logistic
+  tree_method: hist
+  verbosity: 0
+  early_stopping_rounds: 100
+
+# ── s004: Optuna for LightGBM ────────────────────────────
+optuna_lgbm:
+  n_trials: 50
+  direction: maximize
+  seed: 42
+  search_space:
+    num_leaves: [31, 255]
+    min_child_samples: [5, 50]
+    feature_fraction: [0.6, 1.0]
+    bagging_fraction: [0.6, 1.0]
+    reg_alpha: [0.0, 2.0]
+    reg_lambda: [0.0, 2.0]
+    learning_rate: [0.01, 0.1]
+
+# ── s007: Optuna for CatBoost ────────────────────────────
+optuna_catboost:
+  n_trials: 30
+  direction: maximize
+  seed: 42
+  search_space:
+    depth: [4, 10]
+    learning_rate: [0.01, 0.1]
+    l2_leaf_reg: [1.0, 10.0]
+    bagging_temperature: [0.0, 1.0]
+    random_strength: [0.5, 3.0]
+
+# ── s008: LightGBM best params (from s004 Optuna) ────────
+lgbm_tuned:   # populated after s004 runs
+  seed: 42
+  n_estimators: 3000
+  learning_rate: 0.03
+  verbose: -1
+  n_jobs: -1
+  device: cpu
+  objective: binary
+  metric: auc
+
+# ── s009: Stacking ────────────────────────────────────────
+stacking:
+  meta_model: logistic_regression    # L2 LR on OOF probabilities
+  level1_runs:
+    - s004   # LGBM tuned
+    - s007   # CatBoost tuned
+    - s005   # XGBoost
+  meta_model_params:
+    C: 1.0
+    max_iter: 1000
+    random_state: 42
+
+# ── s010: Final Ensemble ─────────────────────────────────
+ensemble:
+  method: weighted_average
+  models:
+    - s004   # LGBM Optuna
+    - s007   # CatBoost Optuna
+    - s005   # XGBoost
+    - s009   # Stacking
+
+logging:
+  experiment_dir: submissions/
+  run_prefix: "s"
+  current_run: s001
