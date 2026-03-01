@@ -158,6 +158,10 @@ XGBoost underperforms LGBM/CatBoost on this dataset but adds algorithm diversity
 The calibrated re-run predictions (0.916334) are used in s009 stacking and s010 blend.
 The LR meta-model in s009 confirmed roughly equal contribution from all three models.
 
+### Reproducibility note
+- Background re-run (bea15e4) used pre-fix code (no `objective: binary:logistic`): **✅ CONFIRMED** — OOF 0.915593, preds [-0.089, 1.120] — exact match with original buggy s005
+- Both versions are reproducible: original raw-scores run (0.915593) and fixed probability run (0.916334) both match with seed=42
+
 ---
 
 ## s006 — Feature Engineering v2 (Target Encoding + Deep Interactions)
