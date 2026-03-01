@@ -196,6 +196,10 @@ Target encoding HURT performance on this dataset. Reasons:
 **Action:** Use v1 features (not v2) for all remaining LGBM runs. Drop target encoding.
 **New insight added to OPERATING_MANUAL.md.**
 
+### Reproducibility note
+- Background re-run (bc3fa06): **✅ CONFIRMED REPRODUCIBLE** — OOF 0.915938, Fold AUCs [0.9155, 0.91681, 0.91597, 0.91707, 0.9144], runtime 160.4s — exact match with original ablation run
+- Confirms target-encoding hurt is a real signal, not noise — finding is stable across runs
+
 ---
 
 ## s007 — CatBoost Manual Diversity Variant
