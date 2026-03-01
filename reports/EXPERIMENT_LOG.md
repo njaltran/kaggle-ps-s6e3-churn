@@ -120,6 +120,12 @@ CatBoost handles ordered categoricals better; may gain +0.001–0.003 on this fe
 - +0.0006 OOF AUC over baseline — modest but consistent improvement
 - These params used for s008 (10-fold) to get a more stable OOF estimate
 
+### Reproducibility note
+- Background re-run (ba6d371) failed with `IndexError: only integers... are valid indices` at `X["MonthlyCharges"]`
+- **Root cause:** Re-run was launched from a prior session when the Optuna block used `_` as the X_test stub (`feature_engineering_v1(X_tr_full, _, ...)`) instead of the correctly-named `X_te_optuna`. The `_` variable held a numpy array at that call site → string column indexing failed.
+- **Current code status:** Fixed at train.py line 371 — now correctly passes `X_te_optuna`; re-run would pass today
+- **Impact on results:** Zero — production s004 ran with the correct code; OOF 0.916597 is valid
+
 ---
 
 ## s005 — XGBoost Baseline
