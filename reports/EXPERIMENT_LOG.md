@@ -102,9 +102,10 @@ CatBoost handles ordered categoricals better; may gain +0.001–0.003 on this fe
 - After study: inject best params → run final 5-fold CV → save submission
 
 ### Optuna results
-- Best found: **0.916607** at trial 35 (study best across 50 trials)
+- Best found: **0.916607** at trial 42 (study best across 50 trials)
+  - Note: trial 35 held interim best of 0.916591; trial 42 improved it to 0.916607
 - Best trial params: `num_leaves=46, min_child_samples=44, feature_fraction=0.608, bagging_fraction=0.762, reg_alpha=0.262, reg_lambda=1.838, learning_rate=0.01245`
-- Total elapsed: ~2h47m (50 trials × 5-fold CV + final 5-fold CV)
+- Total elapsed: 10503.8s (~2h55m — 50 trials × 5-fold inner CV + final 5-fold CV)
 
 ### Results
 - OOF AUC: **0.916597** ✅ (+0.000581 vs s001 baseline)
@@ -120,10 +121,9 @@ CatBoost handles ordered categoricals better; may gain +0.001–0.003 on this fe
 - These params used for s008 (10-fold) to get a more stable OOF estimate
 
 ### Reproducibility note
-- Background re-run (ba6d371) failed with `IndexError: only integers... are valid indices` at `X["MonthlyCharges"]`
-- **Root cause:** Re-run was launched from a prior session when the Optuna block used `_` as the X_test stub (`feature_engineering_v1(X_tr_full, _, ...)`) instead of the correctly-named `X_te_optuna`. The `_` variable held a numpy array at that call site → string column indexing failed.
-- **Current code status:** Fixed at train.py line 371 — now correctly passes `X_te_optuna`; re-run would pass today
-- **Impact on results:** Zero — production s004 ran with the correct code; OOF 0.916597 is valid
+- Production run output recovered from background task b382f13: **✅ CONFIRMED** — OOF 0.916597, Fold AUCs [0.91624, 0.91741, 0.91666, 0.91774, 0.91499], runtime 10503.8s — exact match across all metrics
+- Optuna convergence trace confirmed: best improved from 0.916308 (trial 0) → 0.916513 (trial 3) → 0.916570 (trial 6) → 0.916591 (trial 35) → **0.916607 (trial 42, final best)**
+- Separate re-run attempt (ba6d371) failed with `IndexError` — stale code used `_` stub instead of `X_te_optuna`; current code is correct
 
 ---
 
