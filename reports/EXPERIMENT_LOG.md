@@ -84,10 +84,9 @@ CatBoost handles ordered categoricals better; may gain +0.001–0.003 on this fe
 - CV-LB gap: 0.0025 (consistent with s001 gap of 0.0023 — CV is reliable)
 
 ### Reproducibility note
-- Background re-run (bf00a5e) failed with `TypeError: CatBoostClassifier.__init__() got an unexpected keyword argument 'seed'`
-- **Root cause:** Re-run was launched from a prior session BEFORE the OQ-007 fix (`seed`→`random_seed` rename in `train_catboost_fold()`) was applied to train.py
-- **Current code status:** Fix is in place (train.py lines 121-123); re-run would pass today
-- **Impact on results:** Zero — original production run used the correct code path; submission is valid
+- First re-run attempt (bf00a5e) failed with `TypeError: CatBoostClassifier.__init__() got an unexpected keyword argument 'seed'` — launched before OQ-007 fix was applied
+- Second re-run (b727737) with fixed code: **✅ CONFIRMED REPRODUCIBLE** — OOF 0.916406, Fold AUCs [0.91607, 0.91715, 0.91649, 0.91760, 0.91476], runtime 4017.3s — bit-for-bit identical to original production run
+- Full reproducibility confirmed with seed=42; `seed`→`random_seed` fix in `train_catboost_fold()` verified correct
 
 ---
 
