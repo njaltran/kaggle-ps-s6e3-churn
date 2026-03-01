@@ -47,10 +47,10 @@
 - **Workaround:** After submitting, check https://www.kaggle.com/competitions/playground-series-s6e3/submissions → manually record Public LB score in EXPERIMENT_LOG.md
 - **Action:** Document after each submission run
 
-### OQ-005: GitHub repo not yet created
+### ~~OQ-005: GitHub repo not yet created~~
 - **Issue:** Remote GitHub repo not initialized
-- **Action:** `gh repo create kaggle-ps-s6e3-churn --public --source . --push` after all runs complete
-- **Blocking:** No (can push at any time after submissions finish)
+- **Resolution:** Repo created: https://github.com/njaltran/kaggle-ps-s6e3-churn — initial commit of 32 files (src, configs, reports, per-run metrics). Final commit pending after s007/s008/s010 complete.
+- **Status:** RESOLVED ✅
 
 ### ~~OQ-009: CatBoost Optuna infeasible on local CPU~~
 - **Issue:** Original s007 plan was CatBoost + 30-trial Optuna HPO
@@ -64,7 +64,8 @@
 - **Fix:** Pipeline step 0 re-runs s005 with binary:logistic, overwriting both OOF and test prediction files with proper probabilities in [0,1]. s005 LB submission is NOT re-submitted. AUC metric is rank-based and identical before/after.
 - **Status:** RESOLVED ✅
 
-### OQ-010: s004 best Optuna params not yet known
+### ~~OQ-010: s004 best Optuna params not yet known~~
 - **Issue:** s004 Optuna still running (trial ~44/50); best params TBD
 - **Impact:** s008 `--use-tuned-params` will read `submissions/s004/optuna_best_params.json`
-- **Status:** Will auto-resolve when s004 completes (~20 min)
+- **Resolution:** s004 completed. Best params at trial 35: `num_leaves=46, lr=0.01245, feature_fraction=0.608, bagging_fraction=0.762, reg_alpha=0.262, reg_lambda=1.838, min_child_samples=44`. File saved to `submissions/s004/optuna_best_params.json`. s008 is now running with these params.
+- **Status:** RESOLVED ✅

@@ -69,22 +69,23 @@
 - [x] Target encoding v2 → OOF 0.915938 (−0.0001 vs baseline — HURT)
 - [x] NOT submitted (saved daily slot). v1 features remain best for LGBM.
 
-### Phase 5: HPO (s004) 🔄
-- [🔄] Optuna 50-trial TPE on LGBM → best trial 35: OOF 0.916591
-- [ ] Complete final CV → submit
-- [ ] Record LB score
+### Phase 5: HPO (s004) ✅
+- [x] Optuna 50-trial TPE on LGBM → best trial 35: OOF 0.916607 (study), OOF 0.916597 (final CV)
+- [x] Best params: num_leaves=46, lr=0.01245, feature_fraction=0.608, reg_alpha=0.262, reg_lambda=1.838
+- [x] Submitted s004 → LB TBD (record from Kaggle page)
 
-### Phase 6: Ensemble (s007–s010) ⏳
-- [ ] s007: CatBoost diversity variant (manual, depth=6, l2=6)
-- [ ] s008: LGBM 10-fold with Optuna params
-- [ ] s009: LR stack (s004+s003+s005 OOF)
-- [ ] s010: Weighted blend (all best models)
+### Phase 6: Ensemble (s007–s010) 🔄
+- [x] s009: LR stack (s004+s003+s005 OOF) → OOF 0.916709 (+0.000112 over best single)
+- [x] s008: LGBM 10-fold with Optuna params → OOF 0.916587 (same as s004, smoother test preds)
+- [🔄] s007: CatBoost diversity variant (manual, depth=6, l2=6) — running now
+- [ ] s010: Weighted blend (all best models) — queued after s007
 - [ ] Submit and record all LB scores
 
 ### Phase 7: Packaging (final)
-- [ ] Update README.md with final numbers
+- [x] GitHub repo created: https://github.com/njaltran/kaggle-ps-s6e3-churn (initial commit 32 files)
+- [ ] Update README.md with final numbers (s007, s010)
 - [ ] Update model_card.md with final OOF/LB/rank
-- [ ] git init → add all non-data files → push to GitHub
+- [ ] Final git commit: add s004–s010 metrics + updated reports → push
 - [ ] Record final rank for resume bullets
 
 ---
@@ -107,3 +108,7 @@
 - **2026-03-01 [CatBoost Optuna infeasibility]:** CatBoost 5-fold CV inside Optuna: ~13 min/fold × 5 = 65 min/trial. 30 trials = 32.5 hours on local CPU — infeasible. Always compute estimated compute budget BEFORE running Optuna with CatBoost/XGBoost. Solution: use manual hand-tuning or reduce to 3-5 trials for budget Optuna runs.
 
 - **2026-03-01 [CV reliability]:** With 5-fold StratifiedKFold on 594K rows, CV-to-LB gap is extremely consistent: 0.0023–0.0025 AUC across all runs. This confirms the CV is a reliable proxy for LB. Can confidently make go/no-submit decisions based on OOF AUC alone.
+
+- **2026-03-01 [s009 stacking]:** LR meta-learner (s004+s003+s005) gave near-equal coefficients (~2.12 each) for all 3 models. When meta-coefs are equal, the LR stack is essentially an equal-weight average, just with a learned scaling factor (which LR absorbs into the intercept). This means: (1) when 3 models of similar strength are stacked, LR finds little to differentiate them; (2) the +0.000112 OOF lift is real but modest — diversity among models matters more than individual strength. Lesson: to get higher meta-coef variance (and thus more benefit from stacking), include models with notably DIFFERENT accuracy levels (e.g., add a weak/strong model pair, or a model trained on different features).
+
+- **2026-03-01 [s008 10-fold vs 5-fold]:** 10-fold LGBM produced OOF AUC = 0.916587 vs 5-fold s004's 0.916597. Essentially identical. But fold_std INCREASED (0.001196 vs 0.000965) because each val fold has half as many rows (60K vs 120K), giving noisier individual fold estimates. The real benefit of 10-fold is the test predictions: 10 models averaged → smoother predictions → better ensemble member. Lesson: fold count doesn't improve OOF AUC but does improve test prediction quality for ensembles.

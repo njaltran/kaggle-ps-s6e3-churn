@@ -1,0 +1,19 @@
+{
+  "run_id": "s007",
+  "model": "catboost",
+  "feature_version": "v1",
+  "oof_auc": 0.91653,
+  "fold_aucs": [
+    0.916109,
+    0.917233,
+    0.916605,
+    0.917799,
+    0.914932
+  ],
+  "fold_std": 0.000984,
+  "n_splits": 5,
+  "seed": 42,
+  "n_features": 30,
+  "train_rows": 594194,
+  "elapsed_seconds": 5407.6
+}

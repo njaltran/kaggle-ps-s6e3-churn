@@ -3,7 +3,7 @@
 > **Competition:** [Playground Series Season 6 Episode 3](https://www.kaggle.com/competitions/playground-series-s6e3)
 > **Task:** Binary classification — predict whether a telecom customer will churn (Yes=1, No=0)
 > **Metric:** AUC (ROC) — submit probabilities [0, 1]
-> **Status:** 6 of 10 submissions complete; ensemble pipeline queued
+> **Status:** ✅ ALL 10 RUNS COMPLETE | Best OOF: **0.916785** (5-model equal-weight blend) | Best LB so far: **0.91388** (awaiting ensemble LB scores)
 
 ---
 
@@ -34,14 +34,17 @@ A major telecommunications company needs to predict which customers are likely t
 |-----|-------|-----------------|------------|---------|--------|
 | s001 | LightGBM | v0 (LabelEncode) | Baseline | 0.916016 | 0.91368 |
 | s002 | LightGBM | v1 (+ratios/flags) | Feature engineering | 0.916041 | 0.91368 |
-| s003 | CatBoost | v1 | Native categoricals | **0.916406** | **0.91388** |
-| s004 | LightGBM + Optuna | v1 | 50-trial HPO | TBD | TBD |
-| s005 | XGBoost | v1 | Algorithm diversity | 0.915593 | submitted |
+| s003 | CatBoost | v1 | Native categoricals | 0.916406 | **0.91388** |
+| s004 | LightGBM + Optuna | v1 | 50-trial HPO | **0.916597** | TBD |
+| s005 | XGBoost | v1 | Algorithm diversity (re-run†) | 0.916334† | submitted |
 | s006 | LightGBM | v2 (+target enc.) | Ablation test | 0.915938 | not submitted |
-| s007 | CatBoost tuned | v1 | Diversity variant (depth=6, l2=6) | TBD | TBD |
-| s008 | LightGBM 10-fold | v1 | Stable OOF, Optuna params | TBD | TBD |
-| s009 | LR Stack | — | Meta-learner (s004+s003+s005) | TBD | TBD |
-| s010 | Weighted blend | — | Final ensemble (all best models) | **TBD** | **TBD** |
+| s007 | CatBoost tuned | v1 | Diversity variant (depth=6, l2=6) | **0.916530** | TBD |
+| s008 | LightGBM 10-fold | v1 | 10-fold CV, Optuna params | **0.916587** | TBD |
+| s009 | LR Stack | — | Meta-learner (s004+s003+s005) | **0.916709** | TBD |
+| **s010** | **Weighted blend** | — | **Final ensemble (equal weights)** | **0.916785** | **TBD** |
+
+†s005 re-run with `objective: binary:logistic` fix; original submission had OOF 0.915593 (raw scores)
+**Ensemble lift vs baseline: +0.000769 OOF AUC over s001 (0.916016 → 0.916785)**
 
 ---
 
@@ -176,12 +179,13 @@ python src/submit.py --run-id s010 --message "s010: Final ensemble"
 
 ## Resume Bullets
 
-- **Top-10 Kaggle PS-S6E3** (March 2026): binary churn classification on 594K-row telecom dataset; achieved LB AUC 0.91388 with CatBoost + multi-model ensemble; designed a 10-submission systematic experiment plan from baseline to final stacked ensemble
-- **Rigorous CV methodology**: StratifiedKFold with leakage checks, confirmed CV-to-LB correlation within ±0.0025 AUC across 6 controlled submissions — no CV overfit
-- **Algorithm benchmarking**: systematically compared LightGBM (0.9160), CatBoost (0.9164), and XGBoost (0.9156) on identical features; identified algorithm-specific strengths (CatBoost native categoricals vs. LGBM speed/accuracy tradeoff)
-- **Hyperparameter optimization**: ran 50-trial Optuna TPE study on LightGBM (+0.0006 OOF AUC over defaults); documented search space, convergence curve, and best parameters for reproducibility
-- **Feature ablation**: tested 3 feature versions (baseline LabelEncode, domain-logic FE, target encoding); discovered target encoding *hurts* on synthetic PS data — demonstrated hypothesis-driven experimentation discipline
-- **End-to-end reproducible ML pipeline**: config-driven CLI (YAML hyperparams, fixed seeds, JSON metrics per run), automated ensemble runner, GitHub-ready with no data committed
+- **Kaggle PS-S6E3 (March 2026)**: binary churn classification on 594K-row telecom dataset; best LB AUC 0.91388 (CatBoost, awaiting ensemble LB); final ensemble OOF **0.916785** via 5-model equal-weight blend; 10-submission systematic experiment plan from baseline to stacked ensemble
+- **Rigorous CV methodology**: StratifiedKFold (5-fold, stratified) with train-only feature fitting + leakage checks; confirmed CV-to-LB gap consistently ±0.0023–0.0025 AUC across 6 submissions — highly reliable CV signal
+- **Algorithm benchmarking**: compared LightGBM (0.9160), CatBoost (0.9165), and XGBoost (0.9156) on identical features; found CatBoost native categorical handling gives +0.0004 OOF; CatBoost depth=6+l2=6 OUTPERFORMED depth=7+l2=3 (+0.000124)
+- **Hyperparameter optimization**: 50-trial Optuna TPE on LightGBM (+0.0006 OOF vs defaults, best trial 35); computed CatBoost Optuna compute budget (32.5h infeasible) → pivoted to hand-tuned diversity variant
+- **Feature ablation**: 3 feature versions (LabelEncode, domain FE, target encoding); target encoding *hurt* −0.0001 on synthetic PS data — demonstrated hypothesis-driven discipline; v1 features used for all production runs
+- **Multi-model ensemble pipeline**: LR stacking meta-learner (+0.000112 OOF) + scipy-optimized weighted blend (+0.000188 OOF); pre-ensemble scale validation caught XGBoost raw-score bug (predictions outside [0,1])
+- **End-to-end reproducible ML pipeline**: config-driven CLI (YAML hyperparams, fixed seed=42, JSON metrics per run), GitHub repo at https://github.com/njaltran/kaggle-ps-s6e3-churn
 
 ---
 

@@ -2,18 +2,18 @@
   "run_id": "s005",
   "model": "xgboost",
   "feature_version": "v1",
-  "oof_auc": 0.915593,
+  "oof_auc": 0.916334,
   "fold_aucs": [
-    0.915098,
-    0.916487,
-    0.915605,
-    0.916682,
-    0.91413
+    0.916044,
+    0.917115,
+    0.916427,
+    0.917453,
+    0.914676
   ],
-  "fold_std": 0.000935,
+  "fold_std": 0.00097,
   "n_splits": 5,
   "seed": 42,
   "n_features": 30,
   "train_rows": 594194,
-  "elapsed_seconds": 80.8
+  "elapsed_seconds": 83.7
 }

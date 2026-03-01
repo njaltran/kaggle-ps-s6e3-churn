@@ -98,13 +98,15 @@
 | s001 | LightGBM baseline | v0 | Establish valid LB entry | 0.916016 | 0.91368 |
 | s002 | LightGBM + FE v1 | v1 | Measure feature lift | 0.916041 | 0.91368 |
 | s003 | CatBoost baseline | v1 | Compare model family | 0.916406 | **0.91388** |
-| s004 | LightGBM + Optuna HPO | v1 | Hyperparameter optimization (50 trials) | TBD | TBD |
-| s005 | XGBoost baseline | v1 | Ensemble diversity | 0.915593 | submitted |
+| s004 | LightGBM + Optuna HPO | v1 | Hyperparameter optimization (50 trials) | **0.916597** | TBD |
+| s005 | XGBoost baseline (re-run†) | v1 | Ensemble diversity | 0.916334† | submitted |
 | s006 | LightGBM + FE v2 | v2 | Ablation: target encoding | 0.915938 | NOT submitted |
-| s007 | CatBoost manual tuning | v1 | Diversity variant for ensemble | TBD | TBD |
-| s008 | LightGBM 10-fold tuned | v1 | Stable OOF, best Optuna params | TBD | TBD |
-| s009 | LR Stack (s004+s003+s005) | — | Meta-learner ensemble | TBD | TBD |
-| s010 | Weighted blend (all best) | — | Final kitchen-sink ensemble | TBD | TBD |
+| s007 | CatBoost manual tuning | v1 | Diversity variant for ensemble | **0.916530** | TBD |
+| s008 | LightGBM 10-fold tuned | v1 | Stable OOF, best Optuna params | **0.916587** | TBD |
+| s009 | LR Stack (s004+s003+s005) | — | Meta-learner ensemble | **0.916709** | TBD |
+| **s010** | **Weighted blend (all best)** | — | **Final equal-weight ensemble** | **0.916785** | **TBD** |
+
+†s005 re-run with `objective: binary:logistic`; original 0.915593 had raw regression scores
 
 ### Decision: CatBoost Optuna (s007) → Manual Tuning
 **Date:** 2026-03-01

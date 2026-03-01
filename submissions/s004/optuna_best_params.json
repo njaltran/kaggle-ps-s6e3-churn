@@ -1,0 +1,12 @@
+{
+  "best_params": {
+    "num_leaves": 46,
+    "min_child_samples": 44,
+    "feature_fraction": 0.6076131907368005,
+    "bagging_fraction": 0.7619276623332092,
+    "reg_alpha": 0.26227519823600587,
+    "reg_lambda": 1.8381362124683236,
+    "learning_rate": 0.01245039194534613
+  },
+  "best_auc": 0.9166072342305963
+}

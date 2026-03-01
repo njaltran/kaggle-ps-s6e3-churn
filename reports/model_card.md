@@ -35,12 +35,14 @@
 | s001 | LightGBM | num_leaves=127, lr=0.05, defaults | 0.916016 |
 | s002 | LightGBM + FE v1 | same | 0.916041 |
 | s003 | CatBoost | depth=7, l2=3, lr=0.05 | 0.916406 |
-| s004 | LightGBM + Optuna | 50-trial TPE (best params TBD) | TBD |
-| s005 | XGBoost | max_depth=7, subsample=0.8, lr=0.05 | 0.915593 |
-| s007 | CatBoost tuned | depth=6, l2=6, lr=0.04 | TBD |
-| s008 | LightGBM 10-fold | Optuna best params | TBD |
-| s009 | LR Stack | C=1.0, trained on s004+s003+s005 OOF | TBD |
-| s010 | Weighted Blend | scipy-optimized weights on OOF | TBD |
+| s004 | LightGBM + Optuna | num_leaves=46, lr=0.01245, reg_alpha=0.262, reg_lambda=1.838 | **0.916597** |
+| s005 | XGBoost (re-run†) | max_depth=7, subsample=0.8, lr=0.05, objective=binary:logistic | 0.916334† |
+| s007 | CatBoost tuned | depth=6, l2=6, lr=0.04, bagging_temp=0.8 | **0.916530** |
+| s008 | LightGBM 10-fold | same as s004 Optuna params, n_splits=10 | **0.916587** |
+| s009 | LR Stack | C=1.0, trained on s004+s003+s005 OOF | **0.916709** |
+| **s010** | **Weighted Blend** | **equal weights (0.2 each), 5 components** | **0.916785** |
+
+†s005 original OOF was 0.915593 (raw regression scores); re-run with `objective: binary:logistic` corrects to proper probabilities. LB submission was original run.
 
 ### Seeds
 - All CV splits: `random_state=42`
@@ -74,20 +76,23 @@
 ## Evaluation
 | Metric | Run | Value |
 |--------|-----|-------|
-| Best OOF AUC | s003 (interim) | 0.916406 |
-| Best LB AUC | s003 | 0.91388 |
-| Best LB Rank | s003 | ~10 / ~20 teams (interim) |
-| Final OOF AUC | s010 | TBD |
-| Final LB AUC | s010 | TBD |
-| Final LB Rank | s010 | TBD |
+| Best single-model OOF AUC | s004 (LightGBM Optuna) | 0.916597 |
+| Best stacked OOF AUC | s009 (LR Stack) | 0.916709 |
+| **Final/Best OOF AUC** | **s010 (5-model blend)** | **0.916785** |
+| Ensemble lift over baseline | s010 vs s001 | +0.000769 AUC |
+| Best LB AUC (so far) | s003 (CatBoost) | 0.91388 |
+| Best LB Rank (so far) | s003 | ~10 / ~20 teams |
+| Final LB AUC | s010 (blend) | TBD (awaiting submission processing) |
+| Final LB Rank | s010 (blend) | TBD |
 
 ## Compute
 - **Hardware:** Local CPU (Apple M-series)
-- **Per-run training times:**
-  - LightGBM 5-fold: ~6 min
-  - CatBoost 5-fold: ~67 min (12× slower than LGBM)
-  - XGBoost 5-fold: ~20 min
-  - Optuna 50-trial LGBM: ~3.75 hours
-  - Ensemble (stack/blend): ~2 min
-- **Total compute:** ~7 hours across 10 runs
+- **Per-run training times (actual):**
+  - LightGBM 5-fold (s001/s002): ~6 min
+  - CatBoost 5-fold (s003): 67 min (12× slower than LGBM)
+  - XGBoost 5-fold (s005): ~20 min
+  - Optuna 50-trial LGBM (s004): 2h47m (10,503s)
+  - LightGBM 10-fold (s008): 14.5 min (871s)
+  - Ensemble stack/blend: ~30s each
+- **Total compute:** ~6 hours across 10 runs (s007 pending)
 - **No GPU required**

@@ -1,0 +1,20 @@
+{
+  "run_id": "s009",
+  "model": "ensemble_stack",
+  "component_runs": [
+    "s004",
+    "s003",
+    "s005"
+  ],
+  "component_oof_aucs": {
+    "s004": 0.916597,
+    "s003": 0.916406,
+    "s005": 0.916334
+  },
+  "oof_auc": 0.916709,
+  "weights_or_coefs": {
+    "s004": 2.1256,
+    "s003": 2.121,
+    "s005": 2.1253
+  }
+}
