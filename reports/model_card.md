@@ -94,5 +94,5 @@
   - Optuna 50-trial LGBM (s004): 2h47m (10,503s)
   - LightGBM 10-fold (s008): 14.5 min (871s)
   - Ensemble stack/blend: ~30s each
-- **Total compute:** ~6 hours across 10 runs (s007 pending)
+- **Total compute:** ~6.5 hours across all 10 runs (s007=90min, s004=2h47min dominated)
 - **No GPU required**

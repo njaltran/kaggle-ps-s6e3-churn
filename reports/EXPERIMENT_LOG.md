@@ -83,6 +83,12 @@ CatBoost handles ordered categoricals better; may gain +0.001–0.003 on this fe
 - LB AUC: **0.91388** (Rank #9 / ~20 teams; +0.0002 over s001)
 - CV-LB gap: 0.0025 (consistent with s001 gap of 0.0023 — CV is reliable)
 
+### Reproducibility note
+- Background re-run (bf00a5e) failed with `TypeError: CatBoostClassifier.__init__() got an unexpected keyword argument 'seed'`
+- **Root cause:** Re-run was launched from a prior session BEFORE the OQ-007 fix (`seed`→`random_seed` rename in `train_catboost_fold()`) was applied to train.py
+- **Current code status:** Fix is in place (train.py lines 121-123); re-run would pass today
+- **Impact on results:** Zero — original production run used the correct code path; submission is valid
+
 ---
 
 ## s004 — Optuna HPO (LightGBM)
